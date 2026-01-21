@@ -1,30 +1,4 @@
-Есть разные материалы, которые нужно развозить на грузовиках. Каждый материал имеет:
-
-    1) Название
-
-    2) Вес в тоннах
-
-    3) Можно ли его делить на части (например, песок - можно, бетонные плиты - нельзя)
-
-Грузовики имеют:
-
-    1) Номер машины
-
-    2) Максимальную грузоподъемность (сколько тонн может увезти)
-
-    3) Текущий загруз (сколько уже загружено)
-
-Нужно написать систему, которая позволяет:
-
-    1) Создавать грузовики и материалы
-
-    2) Загружать материалы в грузовики
-
-    3) Проверять, не перегрузили ли грузовик
-
-    4) Выводить информацию о том, что в каком грузовике лежит
-
-
+<?php
 class Material {
     private $name;      // Название материала
     private $weight;    // Вес в тоннах
@@ -32,9 +6,23 @@ class Material {
     
     public function __construct($name, $weight, $isDivisible) {
         // TODO: Написать конструктор
+        $this -> name = $name;
+        $this -> weight = $weight;
+        $this -> isDivisible = $isDivisible;
     }
     
     // TODO: Сделать геттеры для всех свойств
+    public function getName() {
+        return $this -> name;
+    }
+
+    public function getWeight() {
+        return $this -> weight;
+    }
+
+    public function isDivisible() {
+        return $this -> isDivisible;
+    }
 }
 
 class Truck {
@@ -45,9 +33,26 @@ class Truck {
     
     public function __construct($number, $maxCapacity) {
         // TODO: Написать конструктор
+        $this -> number = $number;
+        $this -> maxCapacity = $maxCapacity;
     }
     
     // TODO: Геттеры для свойств
+    public function getNumber() {
+        return $this -> number;
+    }
+
+    public function getMaxCapacity() {
+        return $this -> maxCapacity;
+    }
+
+    public function getCurrentLoad() {
+        return $this -> currentLoad;
+    }
+
+    public function getCargo() {
+        return $this -> cargo;
+    }
     
     public function loadMaterial(Material $material, $amount = 1) {
         /*
@@ -62,19 +67,29 @@ class Truck {
         если не ок, то выдаем исключение или false
 
         */
+        if (!($material -> isDivisible()) && (is_float($amount))) {
+            throw new Exception("Material is non divisible");
+        } else if (($material -> getWeight() * $amount) > ($this -> maxCapacity - $this -> currentLoad)) {
+            throw new Exception("Material is too heavy");
+        }
+        $this -> cargo[] = $material -> getName();
+        $this -> currentLoad += $material -> getWeight() * $amount;
     }
     
     private function canLoad($weight) {
         // Проверить, можно ли загрузить еще $weight тонн
+        return ($this -> maxCapacity - $this -> currentLoad) >= $weight;
     }
     
     public function getInfo() {
         // Вернуть строку с информацией о грузовике
         // Пример: "Грузовик А123 (загружено 5.5/10 тонн)"
+        return "Грузовик {$this -> number} (загружено {$this -> currentLoad}/{$this -> maxCapacity} тонн)";
     }
     
     public function getCargoList() {
         // Вернуть список материалов в грузовике
+        return join("\n", $this -> cargo);
     }
 }
 
@@ -96,3 +111,4 @@ $truck2->loadMaterial($slab, 2);
 
 echo $truck1->getInfo();
 echo $truck2->getInfo();
+?>
