@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <?php
+    class Rect
+    {
+        private $width;
+        private $height;
+
+        public function __construct($width, $height) {
+            $this -> width = $width;
+            $this -> height = $height;
+        }
+
+        public function getArea() {
+            return $this -> width * $this -> height;
+        }
+
+        public function getPerimetr() {
+            return ($this -> width + $this -> height) * 2;
+        }
+    }
+
+    $rectangle = new Rect(10, 4);
+    echo $rectangle -> getArea() . "\n";
+    echo $rectangle -> getPerimetr();
+    ?>
+
+    <?php
+    class BankAccount
+    {
+        private $number;
+        private $balance;
+
+        public function __construct($number, $balance) {
+            if ($balance < 0) {
+                throw new InvalidArgumentException('Balance is less than 0');
+            }
+            $this -> number = $number;
+            $this -> balance = $balance;
+        }
+
+        public function getBalance() {
+            return $this -> balance;
+        }
+
+        public function deposite($value) {
+            if ($value <= 0) {
+                return "Sum is less than 0";
+            }
+            $this -> balance += $value;
+        }
+
+        public function withdraw($value) {
+            if ($value <= 0) {
+                return "Sum is less than 0";
+            } else if ($value > $this -> balance) {
+                return "You don't have so much money:(";
+            }
+            $this -> balance -= $value;
+        }
+    }
+
+    $client = new BankAccount(689, 1000);
+    echo $client -> getBalance() . "\n";
+    echo $client -> deposite(-241) . "\n";
+    echo $client -> deposite(5000) . "\n";
+    echo $client -> getBalance() . "\n";
+    echo $client -> withdraw(9000) . "\n";
+    echo $client -> withdraw(9000) . "\n";
+    echo $client -> getBalance() . "\n";
+    ?>
+
+    <?php
+    class User 
+    {
+        protected $login;
+        protected $age;
+
+        public function __construct($login, $age) {
+            $this -> login = $login;
+            $this -> age = $age;
+        }
+
+        public function setAge($age) {
+            $this -> age = $age;
+        }
+
+        public function getAge() {
+            return $this -> age;
+        }
+    }
+
+    class Client extends User 
+    {
+        private $city;
+        private $maxPayment;
+
+        public function __construct($login, $age, $city, $maxPayment) {
+            if ($age < 18) {
+                trigger_error("age less than 18");
+            }
+            parent::__construct($login, $age);
+            $this -> city = $city;
+            $this -> maxPayment = $maxPayment;
+        }
+
+        public function setAge($age) {
+            $age < 18 ? trigger_error("age less than 18") : parent::setAge($age);
+        }
+
+        public function getCity() {
+            return $this -> city;
+        }
+
+        public function getMaxPayment() {
+            return $this -> maxPayment;
+        }
+    }
+
+    class Master extends User
+    {
+        private $cities;
+        private $minPayment;
+
+        public function __construct($login, $age, $cities, $minPayment) {
+            if ($age < 18) {
+                trigger_error("age less than 18");
+            }
+            parent::__construct($login, $age);
+            $this -> cities = $cities;
+            $this -> minPayment = $minPayment;
+        }
+
+        public function setAge($age) {
+            $age < 18 ? trigger_error("age less than 18") : parent::setAge($age);
+        }
+
+        public function avalibleClients($clients) {
+            $result = [];
+            foreach ($clients as $client) {
+                $clientMaxPayment = $client -> getMaxPayment();
+                $clientCity = $client -> getCity();
+                if (($clientMaxPayment >= $this -> minPayment) && (in_array($clientCity, $this -> cities))) {
+                    $result[] = $client;
+                }
+            }
+            return $result;
+        }
+    }
+
+    $client1 = new Client('lalauser1', 19, 'Tula', 1000);
+    $client2 = new Client('lalauser2', 15, 'Moscow', 500);
+    $client3 = new Client('lalauser3', 26, 'Spb', 7090);
+    $client4 = new Client('lalauser4', 35, 'Ekb', 600);
+    $client5 = new Client('lalauser5', 21, 'Nmsk', 10000);
+
+    $master1 = new Master('lalauser6', 24, ['Tula', 'Nmsk'], 1000);
+    $master2 = new Master('lalauser7', 19, ['Moscow', 'Ekb', 'Spb'], 550);
+    $master3 = new Master('lalauser8', 47, ['Tula', 'Spb', 'Nmsk'], 6000);
+
+    print_r($master1 -> avalibleClients([$client1, $client2, $client3, $client4, $client5]));
+    ?>
+
+    <?php
+    class MathUtils
+    {
+        public static function factorial($n) {
+            if ($n == 1) {
+                return 1;
+            }
+            return MathUtils::factorial($n - 1) * $n;
+        }
+    }
+
+    echo MathUtils::factorial(5);
+    ?>
+
+    <?php
+    abstract class Shape
+    {
+        abstract public function getArea();
+    }
+
+    class Circle extends Shape
+    {
+        private $radius;
+
+        public function __construct($radius) {
+            $this -> radius = $radius;
+        }
+
+        public function setRadius($radius) {
+            $this -> radius = $radius;
+        }
+
+        public function getArea() {
+            return (($this -> radius) * ($this -> radius)) * 3.14;
+        }
+    }
+
+    $circle = new Circle(5);
+    echo $circle -> getArea();
+    ?>
+
+    <?php
+    interface Log
+    {
+        function log($msg);
+    }
+
+    class Filelog implements Log
+    {
+        private $path;
+        
+        public function __construct($path) {
+            $this -> path = $path;
+        }
+
+        public function setPath($path) {
+            $this -> path = $path;
+        }
+
+        public function log($msg) {
+            $file = fopen($this -> path, 'a');
+            fwrite($file, $msg);
+            fclose($file);
+        }
+    }
+
+    $fileTest = new Filelog('./fourth.log');
+    $fileTest -> log('test');
+    ?>
+</body>
+</html>
